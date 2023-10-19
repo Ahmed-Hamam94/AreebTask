@@ -9,21 +9,29 @@ import UIKit
 
 class RepositoryViewController: UIViewController {
 
+    // MARK: - IBOutlets
+    @IBOutlet weak var repositoriesTableView: UITableView!
+    
+    
+    
+    // MARK: - LifeCycle
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        // Do any additional setup after loading the view.
+        setUpTableView()
+        
     }
 
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
+    // MARK: - Private Functions
+    private func setUpTableView(){
+        repositoriesTableView.delegate = self
+        repositoriesTableView.dataSource = self
+        repositoriesTableView.register(, forCellReuseIdentifier: )
     }
-    */
+   
 
+}
+
+extension RepositoryViewController: UITableViewDelegate, UITableViewDataSource {
+    
+    
 }
