@@ -15,6 +15,7 @@ struct Repository: Codable {
     let privateField: Bool?
     let owner: Owner?
     let description: String?
+    let createdAt: String?
 
     private enum CodingKeys: String, CodingKey {
         case id = "id"
@@ -23,6 +24,7 @@ struct Repository: Codable {
         case privateField = "private"
         case owner = "owner"
         case description = "description"
+        case createdAt = "created_at"
     }
 }
 
@@ -31,13 +33,21 @@ struct Owner: Codable {
     let login: String?
     let id: Int?
     let avatarUrl: String?
+  //  let createdAt: String?
 
     private enum CodingKeys: String, CodingKey {
         case login = "login"
         case id = "id"
         case avatarUrl = "avatar_url"
+       // case createdAt = "created_at"
     }
 
 }
 
-
+struct Details: Codable {
+    let createdAt: String?
+    
+    private enum CodingKeys: String, CodingKey {
+        case createdAt = "created_at"
+    }
+}
