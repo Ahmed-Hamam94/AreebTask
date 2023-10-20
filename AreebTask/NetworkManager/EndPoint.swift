@@ -6,3 +6,22 @@
 //
 
 import Foundation
+
+enum EndPoint {
+    
+    static let base_url = "https://api.github.com/"
+   
+    
+    case repositories
+ 
+    
+
+    var path: String{
+        switch self{
+        case .repositories:
+            return "repositories"
+       
+        }
+
+    }
+}
