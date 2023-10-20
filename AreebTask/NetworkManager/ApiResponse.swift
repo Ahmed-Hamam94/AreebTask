@@ -9,5 +9,5 @@ import Foundation
 
 struct ApiResponse<T: Codable>: Codable {
 
-    let results: T?
+   // let results: T?
 }
