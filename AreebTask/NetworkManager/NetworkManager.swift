@@ -21,11 +21,11 @@ class NetworkManager {
         
         let url = EndPoint.base_url + endPoint.path
         guard let urll = url.asUrl else{return nil}
-        
+        print(urll)
         var urlRequest = URLRequest(url: urll)
-        let headers = ["Content-Type": "application/json"]
+        //let headers = ["Content-Type": "application/json"]
         
-        urlRequest.allHTTPHeaderFields = headers
+       // urlRequest.allHTTPHeaderFields = headers
         urlRequest.httpMethod = "\(method)"
         
         if let parameter = parameter {
@@ -87,20 +87,18 @@ class NetworkManager {
         switch result {
         case .success(let data):
             let decoder = JSONDecoder()
-            guard let response = try? decoder.decode([Repository].self, from: data) else {
+            guard let response = try? decoder.decode( T.self, from: data) else {
                 
                 completion(.failure(APIError.errorDecoding))
                 return
             }
             
             
-            
-           // if let decodedData = response.results {
+           
+        
                 
-            completion(.success(response as! T ))
-            //} else {
-            //    completion(.failure(APIError.errorDecoding))
-           // }
+            completion(.success(response.self))
+           
         case .failure(let error):
             print("error@@@\(error.localizedDescription)")
             completion(.failure(APIError.parsingError))
