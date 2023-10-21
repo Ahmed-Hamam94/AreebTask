@@ -20,7 +20,7 @@ class NetworkManager {
     private func createRequest(endPoint: EndPoint,method: Methods,parameter: [String:Any]? = nil) -> URLRequest?{
         
         let url = EndPoint.base_url + endPoint.path
-        guard let urll = url.asUrl else{return nil}
+        guard let urll = url.encodeUrl().asUrl else{return nil}
         print(urll)
         var urlRequest = URLRequest(url: urll)
         //let headers = ["Content-Type": "application/json"]
@@ -105,40 +105,6 @@ class NetworkManager {
             
         }
     }
-    
-    
-//    func getRepositoryy(completion: @escaping (Result<[Repository], Error>)-> Void){
-//        guard let url = "https://api.github.com/repositories".asUrl else{return }
-//        
-//        let request = URLRequest(url: url)
-//        let session = URLSession(configuration: .default)
-//        let task = session.dataTask(with: request) { data, response, error in
-//            
-//            guard let data = data else {
-//                return
-//            }
-//          //  print(data)
-////            if let response = response {
-////                print(response)
-////            }
-////            if let error = error {
-////                print(error.localizedDescription)
-////            }
-//            do {
-//                
-//                let result = try JSONDecoder().decode([Repository].self,
-//                                                      from: data)
-//                print(result)
-//                completion(.success(result))
-//                
-//            } catch (let error){
-//                completion(.failure(error))
-//                print(error.localizedDescription)
-//            }
-//            
-//        }
-//        task.resume()
-//    }
-    
+
 }
 
