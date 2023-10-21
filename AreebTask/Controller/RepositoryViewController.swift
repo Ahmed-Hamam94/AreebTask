@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import KRProgressHUD
 
 class RepositoryViewController: UIViewController {
 
@@ -13,36 +14,35 @@ class RepositoryViewController: UIViewController {
     @IBOutlet weak var repositoriesTableView: UITableView!
     
     // MARK: - Private Variables
-    private var repositoriesArray = [Repository]()
+    private lazy var repositoriesArray = [Repository]()
     private var repositoryService: RepositoriesProtocol?
     private var repositoryDateService: RepositoryDateProtocol?
-   private var full_name: String?
+    private var full_name: String?
     private var date: String?
-    private var repoPages = 10
-    private var limit = 10
-    private var paginationRepoArray = [Repository]()
+    private var updatedAt: String?
+    private lazy var repoPages = 10
+    private lazy var limit = 10
+    private lazy var paginationRepoArray = [Repository]()
     // MARK: - LifeCycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        title = "List"
+      
         repositoryService = RepositoriesService()
         repositoryDateService = RepositoryDateService()
-        setUpTableView()
+        setUpUI()
         getRepositories()
       
         
     }
- 
-//    override func viewDidAppear(_ animated: Bool) {
-//        super.viewDidAppear(animated)
-//        DispatchQueue.global().asyncAfter(deadline: .now()
-//                                              + 1) { [weak self] in
-//            self?.getRepoDate(fullName: self?.full_name ?? "" )
-//
-//            }
-//    }
+
 
     // MARK: - Private Functions
+    private func setUpUI(){
+        title = "List"
+        navigationController?.navigationBar.tintColor = .label
+        setUpTableView()
+    }
+    
     private func setUpTableView(){
         repositoriesTableView.delegate = self
         repositoriesTableView.dataSource = self
@@ -73,56 +73,9 @@ class RepositoryViewController: UIViewController {
         }
     }
    
-    private func getRepositories(){
-        
-        repositoryService?.fetchRepositories(completion: { [weak self] result in
-            guard let self else {return}
-            
-            switch result {
-                
-            case .success(let repositoriesArray):
-                self.repositoriesArray = repositoriesArray
-                self.limit = self.repositoriesArray.count
-                for num in 0..<10 {
-                    self.paginationRepoArray.append(repositoriesArray[num])
-                }
-                
-                DispatchQueue.main.async { [weak self] in
-                    self?.repositoriesTableView.reloadData()
-                }
-            case .failure(let error):
-                print(error.localizedDescription)
-            }
-        })
-    }
-    private func getRepoDate(fullName: String){
-           
-            repositoryDateService?.fetchRepositories(fullName: fullName, completion: { [weak self] result in
-                guard let self else {return}
-                
-                switch result {
-//owner not [repo]
-                case .success(let repository):
-                    if let createdAt = repository.createdAt{
-                        self.date = createdAt
-                        print("dat ow \(self.date)")
-                    }
-                  
-//                    DispatchQueue.main.async { [weak self] in
-//
-//
-//                      //  self?.repositoriesTableView.reloadData()
-//                    }
-                case .failure(let error):
-                    print(error.localizedDescription)
-                }
-                
-            })
-        }
-
     }
 
-
+// MARK: - UITableViewDelegate && DataSource
 extension RepositoryViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -133,42 +86,32 @@ extension RepositoryViewController: UITableViewDelegate, UITableViewDataSource {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: String(describing: RepositoryTableViewCell.self), for: indexPath) as? RepositoryTableViewCell else { return UITableViewCell()}
         let repository = paginationRepoArray[indexPath.row]
         cell.accessoryType = .disclosureIndicator
-       // full_name = repository.fullName
-       // print(repository.fullName)
-//
-//        DispatchQueue.global().asyncAfter(deadline: .now()
-//                                          + 1) { [weak self] in
-//            self?.getRepoDate(fullName: full_name ?? "" )
-//            DispatchQueue.main.async { [weak self] in
-//
-//                self?.repositoriesTableView.reloadData()
-//            }
-//
-//        }
-       
-        cell.configure(with: repository, createdAt: date ?? "5")
+ 
+        cell.configure(with: repository, createdAt: date ?? "")
         return cell
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
+        
         let repository = paginationRepoArray[indexPath.row]
         guard let fullName = repository.fullName else {return}
-        print("selected \(fullName)")
+       // print("selected \(fullName)")
         getRepoDate(fullName: fullName )
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1){ [weak self] in
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5){ [weak self] in
             let vc = ProfileViewController()
-          //  vc.date = self?.date
+            vc.date = self?.date
             vc.repository = repository
-            self?.present(vc, animated: true)
+            vc.updatedAt = self?.updatedAt
+            self?.navigationController?.pushViewController(vc, animated: true)
         }
        
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         
-        return 150
+        return 140
     }
     
     func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
@@ -182,5 +125,56 @@ extension RepositoryViewController: UITableViewDelegate, UITableViewDataSource {
         }
     }
     
+
+}
+
+// MARK: - Api
+extension RepositoryViewController {
+ 
+    
+     private func getRepositories(){
+         KRProgressHUD.show()
+         repositoryService?.fetchRepositories(completion: { [weak self] result in
+             guard let self else {return}
+             
+             switch result {
+                 
+             case .success(let repositoriesArray):
+                 self.repositoriesArray = repositoriesArray
+                 self.limit = self.repositoriesArray.count
+                 for num in 0..<10 {
+                     self.paginationRepoArray.append(repositoriesArray[num])
+                 }
+                 
+                 DispatchQueue.main.async { [weak self] in
+                     self?.repositoriesTableView.reloadData()
+                     KRProgressHUD.dismiss()
+                 }
+             case .failure(let error):
+                 print(error.localizedDescription)
+             }
+         })
+     }
+     private func getRepoDate(fullName: String){
+            
+             repositoryDateService?.fetchRepositories(fullName: fullName, completion: { [weak self] result in
+                 guard let self else {return}
+                 
+                 switch result {
+
+                 case .success(let repository):
+                     if let createdAt = repository.createdAt{
+                         self.date = createdAt
+                        
+                     }
+                     self.updatedAt = repository.updatedAt
+
+
+                 case .failure(let error):
+                     print(error.localizedDescription)
+                 }
+                 
+             })
+         }
 
 }
