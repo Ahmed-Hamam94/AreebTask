@@ -11,4 +11,8 @@ extension String {
     var asUrl: URL?{
         return URL(string: self)
     }
+    
+    func encodeUrl() -> String {
+        return self.addingPercentEncoding( withAllowedCharacters: NSCharacterSet.urlQueryAllowed) ?? ""
+    }
 }
